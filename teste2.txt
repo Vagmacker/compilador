@@ -1,0 +1,7 @@
+principal(){
+	escrever();
+}
+
+funcao __autenticar(inteiro $i){
+	escrever();
+}
