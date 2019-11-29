@@ -1,7 +1,4 @@
 principal(){
-	escrever();
-}
-
-funcao __autenticar(inteiro $i){
+	inteiro $aaaaa := 18, $bbbbbbb, $c;
 	escrever();
 }

@@ -535,12 +535,35 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		valorAscii,
 		numeroLinha,
 		countValor = 0,
+		countAspas = 0,
+		countChaves = 0,
 		countVirgulas = 0,
 		countVariaveis = 0,
-		isFuncaoExistente = 0,
 		isFuncaoValida = 0,
+		countColchetes = 0,
+		countParenteses = 0,
+		isFuncaoExistente = 0,
 		hasDeclaracaoPrincipal = 0,
 		isLinhaPossuiDeclaracaoFuncao = 0;
+		
+		
+		memoriaConsumida(sizeof(i), 1);
+		memoriaConsumida(sizeof(count), 1);
+		memoriaConsumida(sizeof(aspas), 1);
+		memoriaConsumida(sizeof(valorAscii), 1);
+		memoriaConsumida(sizeof(countValor), 1);
+		memoriaConsumida(sizeof(countAspas), 1);
+		memoriaConsumida(sizeof(countChaves), 1);
+		memoriaConsumida(sizeof(numeroLinha), 1);
+		memoriaConsumida(sizeof(countVirgulas), 1);
+		memoriaConsumida(sizeof(countVariaveis), 1);
+		memoriaConsumida(sizeof(isFuncaoValida), 1);
+		memoriaConsumida(sizeof(countColchetes), 1);
+		memoriaConsumida(sizeof(countParenteses), 1);
+		memoriaConsumida(sizeof(isFuncaoExistente), 1);
+		memoriaConsumida(sizeof(hasDeclaracaoPrincipal), 1);
+		memoriaConsumida(sizeof(isLinhaPossuiDeclaracaoFuncao), 1);
+		
 
 	char
 		palavraAux[UCHAR_MAX],
@@ -552,6 +575,16 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		palavraValorAux[UCHAR_MAX],
 		nomeVariavelAux[UCHAR_MAX],
 		auxTamanhoPalavra[UCHAR_MAX];
+		
+		memoriaConsumida(sizeof(palavraAux), 1);
+		memoriaConsumida(sizeof(nomeEscopo), 1);
+		memoriaConsumida(sizeof(tipoVariavel), 1);
+		memoriaConsumida(sizeof(conteudoLinha), 1);
+		memoriaConsumida(sizeof(tamanhoPalavra), 1);
+		memoriaConsumida(sizeof(valorAtribuicao), 1);
+		memoriaConsumida(sizeof(palavraValorAux), 1);
+		memoriaConsumida(sizeof(nomeVariavelAux), 1);
+		memoriaConsumida(sizeof(auxTamanhoPalavra), 1);
 
 	bool
 		hasLeia = false,
@@ -565,6 +598,18 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		hasLinhaComVariavel = false,
 		hasPalavraReservada = false,
 		hasPossuiPontoVirgula = false;
+		
+		memoriaConsumida(sizeof(hasLeia), 1);
+		memoriaConsumida(sizeof(hasString), 1);
+		memoriaConsumida(sizeof(hasEscreva), 1);
+		memoriaConsumida(sizeof(hasRepetir), 1);
+		memoriaConsumida(sizeof(hasVariavel), 1);
+		memoriaConsumida(sizeof(hasAtribuicao), 1);
+		memoriaConsumida(sizeof(hasPossuiAspas), 1);
+		memoriaConsumida(sizeof(isSimboloAtribuicao), 1);
+		memoriaConsumida(sizeof(hasLinhaComVariavel), 1);
+		memoriaConsumida(sizeof(hasPalavraReservada), 1);
+		memoriaConsumida(sizeof(hasPossuiPontoVirgula), 1);
 	
 	Elem* no = *lista;
 	
@@ -588,6 +633,36 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		for (i = 0; i < strlen(conteudoLinha); i++) {
 			valorAscii = (int) conteudoLinha[i];
 			
+			// se encontrar (
+			if (valorAscii == 40) {
+				countParenteses++;
+			}
+			
+			// se encontrar )
+			if (valorAscii == 41) {
+				countParenteses--;
+			}
+			
+			// se encontrar {
+			if (valorAscii == 123) {
+				countChaves++;
+			}
+			
+			// se encontrar }
+			if (valorAscii == 125) {
+				countChaves--;
+			}
+			
+			// se encontrar [
+			if (valorAscii == 91) {
+				countColchetes++;
+			}
+			
+			// se encontrar ]
+			if (valorAscii == 93) {
+				countColchetes--;
+			}
+			
 			// verifica se existe ';'
 			if (valorAscii == 59) {
 				hasPossuiPontoVirgula = true;
@@ -608,13 +683,13 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 
 			// Verifica se a 'valosAscii' informado eh uma condicao de parada
 			// As condicoes de parada sao os caracterers : \0, espaco, (, ), virgula, ponto virgula, $, tabs, <, =, >, {, }
-			if ((valorAscii != 10) && (valorAscii != 32) && (valorAscii != 40) && (valorAscii != 41) && (valorAscii != 44) && (valorAscii != 59) && (valorAscii != 36) && (valorAscii != 9) && (valorAscii != 60) && (valorAscii != 61) && (valorAscii != 62) && (valorAscii != 123) && (valorAscii != 125)) {
+			if ((valorAscii != 10) && (valorAscii != 32) && (valorAscii != 40) && (valorAscii != 41) && (valorAscii != 44) && (valorAscii != 59) && (valorAscii != 36) && (valorAscii != 9) && (valorAscii != 60) && (valorAscii != 61) && (valorAscii != 62) && (valorAscii != 123) && (valorAscii != 125) && (valorAscii != 91) && (valorAscii != 93)) {
 				if (hasPossuiAspas == false) {
 					palavraAux[count] = (char) valorAscii;
 					count++;
 				}
 				
-				printf("Nome variavel => %d - %d - (%s) - (%s)\n", valorAscii, numeroLinha, nomeVariavelAux, palavraAux);
+				// printf("Nome variavel => %d - %d - (%s) - (%s)\n", valorAscii, numeroLinha, nomeVariavelAux, palavraAux);
 				// TODO mudar 'atualizarValorVariavel' de lugar
 				// atualizarValorVariavel(tabelaSimbolos, nomeVariavelAux, palavraAux);
 			} else {
@@ -659,7 +734,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 							isLinhaPossuiDeclaracaoFuncao++;
 						}
 						
-						// TODO LEIA
+						// TODO LER
 						
 						// TODO ESCREVER
 						
@@ -685,8 +760,8 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 						isFuncaoValida = validarDeclaracaoFuncao(palavraAux, numeroLinha);
 						
 						if (isLinhaPossuiDeclaracaoFuncao && isFuncaoValida) {
-								strcpy(nomeEscopo, palavraAux);
-							}
+							strcpy(nomeEscopo, palavraAux);
+						}
 
 						if (strlen(palavraAux) > 0) {
 							if (!hasVariavel && !hasPalavraReservada && !isFuncaoValida) {
@@ -796,6 +871,14 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 
 		} // fim do for que percorre as colunas da linha
 		
+		if (countParenteses != 0) {
+			throwNewExeception(numeroLinha, 26, conteudoLinha);
+		}
+		
+		if (countColchetes != 0) {
+			throwNewExeception(numeroLinha, 25, conteudoLinha);
+		}
+		
 		// verifica o duplo balanceamento de '"'
 		if (aspas != 0) {
 			throwNewExeception(numeroLinha, 14, conteudoLinha);
@@ -826,21 +909,25 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		countVariaveis = 0;
 		hasEscreva = false;
 		hasRepetir = false;
+		isFuncaoExistente = 0;
 		hasAtribuicao = false;
 		hasPossuiAspas = false;
 		isSimboloAtribuicao = false;
 		hasLinhaComVariavel = false;
 		hasPossuiPontoVirgula = false;
+		isLinhaPossuiDeclaracaoFuncao = 0;
 		limparConteudoVetor(tipoVariavel);
 		limparConteudoVetor(palavraValorAux);
 		limparConteudoVetor(nomeVariavelAux);
-		isFuncaoExistente = 0;
-		isLinhaPossuiDeclaracaoFuncao = 0;
 	} // fim while
 	
 	if (hasDeclaracaoPrincipal == 0) {
 		char valorTmp[] = {""};
 		throwNewExeception(0, 22, valorTmp);
+	}
+	
+	if (countChaves != 0) {
+		throwNewExeception(0, 23, conteudoLinha);
 	}
 }
 
@@ -912,16 +999,19 @@ int validarPalavrasReservadas(char* palavra) {
  * @param char *palavra
  */
 int validarTipoVariavel(char *palavra) {
-	int isValido = 0, i;
-	
-	for (i = 0; i < 3; i++) {
-		if (strcmp(palavra, tiposVariaveis[i]) == 0) {
-			isValido = 1;
-			break;
-		}		
+	if (strcmp(palavra, palavrasReservadas[1]) == 0) {
+		return 1;
 	}
 
-	return isValido;
+	if (strcmp(palavra, palavrasReservadas[7]) == 0) {
+		return 1;
+	}
+
+	if (strcmp(palavra, palavrasReservadas[9]) == 0) {
+		return 1;
+	}
+
+	return 0;
 }
 
 /**
@@ -1002,7 +1092,7 @@ int validarInstrucaoLeia(char * palavra, int nuLinha, char * linha) {
 			throwNewExeception(nuLinha, 3, linha);
 		}
 		
-		// nï¿½o pode haver declaracoes dentro da estrutura
+		// nao pode haver declaracoes dentro da estrutura
 		for (i = 0; i < strlen(linha); i++) {
 			valorAscii = (int) linha[i]; 
 			
@@ -1276,7 +1366,7 @@ void validarTipoCaractere(char * palavra, int numeroLinha) {
 		if (i == tamanhoPalavra && valorAscii == 93) {
 			hasFecharColchete++;
 			continue;
-			// condiï¿½ï¿½o que ira acumular enquanto for numero e nao encontrar [.
+			// condicao que ira acumular enquanto for numero e nao encontrar [.
 		} else if(valorAscii >= 48 && valorAscii <= 57) { 
 			auxValorTamanho[count] = palavra[i];
 			countValorEntreConchete++;
@@ -1291,7 +1381,6 @@ void validarTipoCaractere(char * palavra, int numeroLinha) {
 	
 	// printf("%d =>>>>> %d =>>> %d", hasAberturaColchete, hasFecharColchete, countValorEntreConchete);
 	if (hasFecharColchete == 0 || hasAberturaColchete == 0 || countValorEntreConchete == 0) {
-		printf("\n[TIPO CARACTERE]\n");
 		throwNewExeception(numeroLinha, 8, palavra);
 	}
 }
@@ -1325,7 +1414,7 @@ void validarTipoReal(char * palavra, int numeroLinha) {
 		if (i == tamanhoPalavra && valorAscii == 93) {
 			hasFecharColchete++;
 			continue;
-			// condiïcao que ira acumular enquanto for 0-9 e que o mesmo tenha .
+			// condicao que ira acumular enquanto for 0-9 e que o mesmo tenha .
 		} else if((valorAscii >= 48 && valorAscii <= 57) || valorAscii == 46) { 
 			auxValorTamanho[count] = palavra[i];
 			countValorEntreConchete++;
@@ -1339,7 +1428,6 @@ void validarTipoReal(char * palavra, int numeroLinha) {
 	// TODO Validar valores acima ou iguais a zero, tratar depois
 	
 	if (hasFecharColchete == 0 || hasAberturaColchete == 0 || countValorEntreConchete == 0) {
-		printf("\n[TIPO REAL]\n");
 		throwNewExeception(numeroLinha, 8, palavra);
 	}
 	
@@ -1660,6 +1748,18 @@ void throwNewExeception(int nuLinha, int tipoErro, char *palavra) {
 		case 22:
 			printf("Erro => Modulo principal nao existente.\n");
 			break;
+		case 23:
+			printf("Erro => O duplo balanceamento de chaves esta incorreto, favor verificar o arquivo.\n");
+			break;
+		case 24:
+			printf("Erro => O duplo balanceamento de aspas esta incorreto, (%s). [linha - %d].\n", palavra, nuLinha);
+			break;
+		case 25:
+			printf("Erro => O duplo balanceamento de colchetes esta incorreto, (%s). [linha - %d].\n", palavra, nuLinha);
+			break;
+		case 26:
+			printf("Erro => O duplo balanceamento de parenteses esta incorreto, (%s). [linha - %d].\n", palavra, nuLinha);
+			break;
 		default:
 			printf("Foi selecionando um tipo de erro nao definido no case.\n");
 		break;
@@ -1877,9 +1977,9 @@ void memoriaConsumida(int memoria, int situacao) {
 	if (MAX_TOTAL_CONSUMO_MEMORIA > 0) {
 		percentMemoriaConsumida = (TOTAL_CONSUMO_MEMORIA * 100) / MAX_TOTAL_CONSUMO_MEMORIA;
 	}
-	
+
 	if (percentMemoriaConsumida > 90 && percentMemoriaConsumida < 99) {
-		printf("Sua memoria esta entre 90% a 99% do total disponivel, memoria atual: %.2f%\n\n", percentMemoriaConsumida);
+		printf("Sua memoria esta entre 90%% a 99%% do total disponivel, memoria atual: %.2f%\n\n", percentMemoriaConsumida);
 	}
 	
 	if (TOTAL_CONSUMO_MEMORIA > MAX_TOTAL_CONSUMO_MEMORIA) {
