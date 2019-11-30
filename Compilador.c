@@ -110,8 +110,6 @@ void validarTipoCaractere(char * palavra, int numeroLinha);
 
 void verificarPresencaColchetes(char* palavra, char* tipoVariavel, int numeroLinha);
 
-void validarTipoCaractere(char * palavra, int numeroLinha);
-
 void validarTipoReal(char * palavra, int numeroLinha);
 
 void getTamanhoVariavel(char palavra[], char retorno[], int numeroLinha);
@@ -543,6 +541,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		countColchetes = 0,
 		countParenteses = 0,
 		isFuncaoExistente = 0,
+		countConteudoTexto = 0,
 		hasDeclaracaoPrincipal = 0,
 		isLinhaPossuiDeclaracaoFuncao = 0;
 		
@@ -561,6 +560,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		memoriaConsumida(sizeof(countColchetes), 1);
 		memoriaConsumida(sizeof(countParenteses), 1);
 		memoriaConsumida(sizeof(isFuncaoExistente), 1);
+		memoriaConsumida(sizeof(countConteudoTexto), 1);
 		memoriaConsumida(sizeof(hasDeclaracaoPrincipal), 1);
 		memoriaConsumida(sizeof(isLinhaPossuiDeclaracaoFuncao), 1);
 		
@@ -574,12 +574,14 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		valorAtribuicao[UCHAR_MAX],
 		palavraValorAux[UCHAR_MAX],
 		nomeVariavelAux[UCHAR_MAX],
+		conteudoTexto[UCHAR_MAX],
 		auxTamanhoPalavra[UCHAR_MAX];
 		
 		memoriaConsumida(sizeof(palavraAux), 1);
 		memoriaConsumida(sizeof(nomeEscopo), 1);
 		memoriaConsumida(sizeof(tipoVariavel), 1);
 		memoriaConsumida(sizeof(conteudoLinha), 1);
+		memoriaConsumida(sizeof(conteudoTexto), 1);
 		memoriaConsumida(sizeof(tamanhoPalavra), 1);
 		memoriaConsumida(sizeof(valorAtribuicao), 1);
 		memoriaConsumida(sizeof(palavraValorAux), 1);
@@ -597,6 +599,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		isSimboloAtribuicao = false,
 		hasLinhaComVariavel = false,
 		hasPalavraReservada = false,
+		hasTestar = false,
 		hasPossuiPontoVirgula = false;
 		
 		memoriaConsumida(sizeof(hasLeia), 1);
@@ -620,6 +623,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 	limparConteudoVetor(palavraAux);
 	limparConteudoVetor(nomeEscopo);
 	limparConteudoVetor(tipoVariavel);
+	limparConteudoVetor(conteudoTexto);
 	limparConteudoVetor(tamanhoPalavra);
 	limparConteudoVetor(valorAtribuicao);
 	limparConteudoVetor(palavraValorAux);
@@ -632,6 +636,23 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 
 		for (i = 0; i < strlen(conteudoLinha); i++) {
 			valorAscii = (int) conteudoLinha[i];
+			
+			if (valorAscii == 34) {
+            	countAspas ++;
+        	}
+			
+			if (countAspas == 1) {
+	            conteudoTexto[countConteudoTexto] = conteudoLinha;
+	            countConteudoTexto++;
+	            continue;
+        	}
+
+	        if (countAspas == 2) {
+	            conteudoTexto[countConteudoTexto] = conteudoLinha;
+	            countConteudoTexto = 0;
+	            countAspas = 0;
+	            continue;
+	        }
 			
 			// se encontrar (
 			if (valorAscii == 40) {
@@ -680,6 +701,8 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 					continue;
 				}
 			}
+			
+//			printf("joao %d -- %c -- (%s) -- --- (%s) (%s)\n", hasAtribuicao, conteudoLinha[i], valorAtribuicao, nomeVariavelAux,palavraAux);
 
 			// Verifica se a 'valosAscii' informado eh uma condicao de parada
 			// As condicoes de parada sao os caracterers : \0, espaco, (, ), virgula, ponto virgula, $, tabs, <, =, >, {, }
@@ -694,9 +717,13 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 				// atualizarValorVariavel(tabelaSimbolos, nomeVariavelAux, palavraAux);
 			} else {
 
-				printf("%d - %d - %c - %s\n", numeroLinha, valorAscii, (char) valorAscii, palavraAux);
+//				printf("%d - %d - [](%c)- %s\n", numeroLinha, valorAscii, (char) valorAscii, palavraAux);
 
 				hasVariavel = validarDeclaracaoVariaveis(palavraAux, numeroLinha);
+				
+				if (hasVariavel == 1) {
+					strcpy(nomeVariavelAux, palavraAux);
+				}
 
 				if (!hasVariavel) {
 					hasPalavraReservada = validarPalavrasReservadas(palavraAux);
@@ -707,13 +734,12 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 							strcpy(tipoVariavel, palavraAux);
 							hasLinhaComVariavel = true;
 						}
-
-						hasLeia = validarInstrucaoLeia(palavraAux, numeroLinha, conteudoLinha);
-						hasEscreva = validarInstrucaoEscreva(palavraAux, numeroLinha, conteudoLinha);
 						
-						if (strcmp(palavraAux, palavrasReservadas[5]) == 0) {
-							hasRepetir = true;
-						}
+						// TODO LER
+						hasLeia = validarInstrucaoLeia(palavraAux, numeroLinha, conteudoLinha);
+						
+						// TODO ESCREVER
+						hasEscreva = validarInstrucaoEscreva(palavraAux, numeroLinha, conteudoLinha);
 						
 						// Verifica principal
 						if (strcmp(palavraAux, palavrasReservadas[10]) == 0) {
@@ -733,14 +759,16 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 						if (strcmp(palavraAux, palavrasReservadas[3]) == 0) {
 							isLinhaPossuiDeclaracaoFuncao++;
 						}
-						
-						// TODO LER
-						
-						// TODO ESCREVER
-						
+												
 						// TODO REPETIR
+						if (strcmp(palavraAux, palavrasReservadas[5]) == 0) {
+							hasRepetir = true;
+						}
 						
 						// TODO TESTAR
+						if (strcmp(palavraAux, palavrasReservadas[4]) == 0) {
+							hasTestar = true;
+						}
 						
 						// TODO FALSO
 						
@@ -749,13 +777,13 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 						// TODO RETORNO
 						
 					} else {
-						if (hasAtribuicao == true) {
+						/*if (hasAtribuicao == true) {
 							strcpy(valorAtribuicao, palavraAux);
 							limparConteudoVetor(palavraAux);
 							count = 0;
 							//hasAtribuicao = false;
 							continue;
-						}
+						}*/
 						
 						isFuncaoValida = validarDeclaracaoFuncao(palavraAux, numeroLinha);
 						
@@ -764,13 +792,15 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 						}
 
 						if (strlen(palavraAux) > 0) {
-							if (!hasVariavel && !hasPalavraReservada && !isFuncaoValida) {
-								throwNewExeception(numeroLinha, 21, palavraAux);
+							if (!hasVariavel && !hasPalavraReservada && !isFuncaoValida && !hasAtribuicao) {
+								if (!hasRepetir) {
+									throwNewExeception(numeroLinha, 21, palavraAux);
+								}
 							}
 						}
 					}
 				} else {
-					printf("===> %s\n", palavraAux);
+//					printf("===> %s\n", palavraAux);
 					countVariaveis++;
 					
 					if (hasLinhaComVariavel == true && hasLeia == false) {
@@ -786,8 +816,6 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 					if (hasLinhaComVariavel && hasVariavel) {
 						Simbolo novoSimbolo;
 	
-	    				strcpy(nomeVariavelAux, palavraAux);
-	
 						strcpy(novoSimbolo.escopo, nomeEscopo);
 	    				strcpy(novoSimbolo.tipo, tipoVariavel);
 	    				strcpy(novoSimbolo.variavel, nomeVariavelAux);
@@ -795,17 +823,28 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 	    				insereFinalTabelaSimbolo(tabelaSimbolos, novoSimbolo);
 	    				
 	    				// apenas para tipos de caracter
+	    				/*
 					    if (strcmp(tipoVariavel, tiposVariaveis[2]) == 0) {
 					    	printf("Encontrou tipo caracter\n");
 					    	atualizarValorVariavel(tabelaSimbolos, nomeVariavelAux, palavraAux);
 						}
+						*/
 					}
+					
 
 					// limparConteudoVetor(auxTamanhoPalavra);
 					
 					// validar se a variavel ja foi declarada.
 					if (validarVariavelDeclarada(palavraAux, tabelaSimbolos) == 0) {
 						throwNewExeception(numeroLinha, 11, palavraAux);
+					}
+				}
+				
+				if (strlen(palavraAux) > 0) {
+					if (hasAtribuicao == 1) {
+//						printf("joao maria e jose %s -- %s", nomeVariavelAux, palavraAux);
+						atualizarValorVariavel(tabelaSimbolos, nomeVariavelAux, palavraAux);
+						hasAtribuicao = 0;
 					}
 				}
 				
@@ -845,7 +884,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 				countValor = 0;
 				hasPossuiAspas = false;
 				
-				// como $ faz parte da variavel e tambem � uma condicao de parada, entao preciso incrementar aqui
+				// como $ faz parte da variavel e tambem eh uma condicao de parada, entao preciso incrementar aqui
 				if (valorAscii == 36) {
 					palavraAux[count] = (char) valorAscii;
 					count++;
@@ -887,7 +926,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		// Essa validacao de ; no final esta invalida criar uma nova
 		hasPossuiPontoVirgula = validaDeclaracaoComPontoVirgula(conteudoLinha, numeroLinha);
 		
-		printf("+++++++>>> %d = %d - %d - %d\n", numeroLinha, hasLinhaComVariavel, hasPossuiPontoVirgula, isLinhaPossuiDeclaracaoFuncao);
+		// printf("+++++++>>> %d = %d - %d - %d\n", numeroLinha, hasLinhaComVariavel, hasPossuiPontoVirgula, isLinhaPossuiDeclaracaoFuncao);
 		
 		// verifica se a linha possui declaracao de variavel e tem ; nessa linha
 		if ((hasLinhaComVariavel == true && hasPossuiPontoVirgula == false) && isLinhaPossuiDeclaracaoFuncao == 0) {
@@ -895,7 +934,7 @@ void analisarToken(Lista* lista, TabelaSimbolo* tabelaSimbolos) { // TODO 2
 		}
 		
 		// caso tenha mais de 1 variavel a quantidade de virgulas sera 'countVirgulas' - 'countVariaveis' - 1)
-		if (countVariaveis > 1) {
+		if (countVariaveis > 1 && (hasLinhaComVariavel == 1 || hasLeia == 1 || hasEscreva == 1)) {
 			if (countVirgulas != (countVariaveis - 1)) {
 				throwNewExeception(numeroLinha, 16, conteudoLinha);	
 			}
@@ -1028,6 +1067,7 @@ int validarDeclaracaoVariaveis(char *palavra, int numeroLinha) {
 		if ((int) palavra[1] >= 97 && (int) palavra[1] <= 122) {
 			isValido = 1;
 		} else {
+			printf("Inicializacao variavel invalida (%s)\n", palavra);
 			isValido = 0;
 			throwNewExeception(numeroLinha, 8, palavra);
 		}
@@ -1037,6 +1077,7 @@ int validarDeclaracaoVariaveis(char *palavra, int numeroLinha) {
 			// permiter apenas a-z, 0-9, A-Z, [, ], .
 			if (! ((valorAscii >= 97 && valorAscii <= 122) || (valorAscii >= 48 && valorAscii <= 57) || (valorAscii >= 65 && valorAscii <= 90) || valorAscii == 91 || valorAscii == 93 || valorAscii == 46)) {
 				isValido = 0;
+				printf("Finalizacao variavel invalida (%s)\n", palavra);
 				throwNewExeception(numeroLinha, 8, palavra);
 			}
 		}
@@ -1326,6 +1367,7 @@ void verificarPresencaColchetes(char* palavra, char* tipoVariavel, int numeroLin
 	}
 	
 	// TODO tratar quando for caractere
+	/*
 	if (strcmp(tipoVariavel, tiposVariaveis[1]) == 0) {
 		validarTipoCaractere(palavra, numeroLinha);
 	}
@@ -1334,6 +1376,7 @@ void verificarPresencaColchetes(char* palavra, char* tipoVariavel, int numeroLin
 	if (strcmp(tipoVariavel, tiposVariaveis[2]) == 0) {
 		validarTipoReal(palavra, numeroLinha);
 	}
+	*/
 }
 
 /**
@@ -1356,6 +1399,8 @@ void validarTipoCaractere(char * palavra, int numeroLinha) {
 	char auxValorTamanho[UCHAR_MAX];
 
 	limparConteudoVetor(auxValorTamanho);
+	
+	printf("---->(%s)\n", palavra);
 	
 	// percorre a palavra de traz para frente
 	for (i = tamanhoPalavra; i >= 0; i--) {

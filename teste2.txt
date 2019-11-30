@@ -1,4 +1,20 @@
 principal(){
-	inteiro $aaaaa := 18, $bbbbbbb, $c;
-	escrever();
+	inteiro $a, $b := 774800, $c;
+	real $d;
+	escrever("Escreva um 123456 ");
+	ler ($a);
+	$b := 1;
+	testar ($a <= $b)
+	verdadeiro escrever(" Teste 123", $a);
+	falso escrever("Teste 321", $b);
+
+	repetir ($d := 1; $d<=100; $d:= $d){
+		escrever("D", $d);
+	}
+}
+
+funcao __soma (inteiro $e, inteiro $aa){
+	inteiro $num;
+	$num := $aa;
+	retorno $num;
 }
